@@ -117,6 +117,24 @@ func TestCreateProduct(t *testing.T) {
 	}
 }
 
+func TestCreateProductWithCategory(t *testing.T) {
+	clearTable()
+
+	var jsonStr = []byte(`{"name":"Laptop", "price": 799.99, "category": "Electronics"}`)
+	req, _ := http.NewRequest("POST", "/product", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeRequest(req)
+	checkResponseCode(t, http.StatusCreated, response.Code)
+
+	var m map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if m["category"] != "Electronics" {
+		t.Errorf("Expected product category to be 'Electronics'. Got '%v'", m["category"])
+	}
+}
+
 func TestGetProduct(t *testing.T) {
 	clearTable()
 	addProducts(1)
