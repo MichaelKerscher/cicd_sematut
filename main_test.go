@@ -155,6 +155,25 @@ func addProducts(count int) {
 	}
 }
 
+func TestSearchProductByName(t *testing.T) {
+	clearTable()
+	addProducts(3)
+
+	req, _ := http.NewRequest("GET", "/products?name=Product 1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) == 0 {
+		t.Errorf("Expected to find at least one product, but found none")
+	} else if products[0]["name"] != "Product 1" {
+		t.Errorf("Expected product name to be 'Product 1'. Got '%v'", products[0]["name"])
+	}
+}
+
 func TestUpdateProduct(t *testing.T) {
 
 	clearTable()
