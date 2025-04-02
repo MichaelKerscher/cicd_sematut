@@ -174,6 +174,50 @@ func TestSearchProductByName(t *testing.T) {
 	}
 }
 
+func TestSortProductsByPriceAsc(t *testing.T) {
+	clearTable()
+	addProducts(3) // Adds products with prices 10, 20, 30
+
+	req, _ := http.NewRequest("GET", "/products?sort=asc", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) < 2 {
+		t.Errorf("Expected at least two products for sorting test")
+	}
+
+	if products[0]["price"].(float64) > products[1]["price"].(float64) {
+		t.Errorf("Expected prices to be sorted in ascending order. Got %v before %v",
+			products[0]["price"], products[1]["price"])
+	}
+}
+
+func TestSortProductsByPriceDesc(t *testing.T) {
+	clearTable()
+	addProducts(3) // Adds products with prices 10, 20, 30
+
+	req, _ := http.NewRequest("GET", "/products?sort=desc", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) < 2 {
+		t.Errorf("Expected at least two products for sorting test")
+	}
+
+	if products[0]["price"].(float64) < products[1]["price"].(float64) {
+		t.Errorf("Expected prices to be sorted in descending order. Got %v before %v",
+			products[0]["price"], products[1]["price"])
+	}
+}
+
 func TestUpdateProduct(t *testing.T) {
 
 	clearTable()

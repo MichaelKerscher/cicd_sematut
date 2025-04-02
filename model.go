@@ -36,8 +36,13 @@ func (p *product) createProduct(db *sql.DB) error {
 		p.Name, p.Price, p.Category).Scan(&p.ID)
 }
 
-func getProducts(db *sql.DB, start, count int, name string) ([]product, error) {
-	query := "SELECT id, name, price, category FROM products WHERE name ILIKE $1 LIMIT $2 OFFSET $3"
+func getProducts(db *sql.DB, start, count int, name, sort string) ([]product, error) {
+	order := "ASC"
+	if sort == "desc" {
+		order = "DESC"
+	}
+
+	query := "SELECT id, name, price, category FROM products WHERE name ILIKE $1 ORDER BY price " + order + " LIMIT $2 OFFSET $3"
 	rows, err := db.Query(query, "%"+name+"%", count, start)
 
 	if err != nil {
