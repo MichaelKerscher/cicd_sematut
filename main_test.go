@@ -117,6 +117,24 @@ func TestCreateProduct(t *testing.T) {
 	}
 }
 
+func TestCreateProductWithCategory(t *testing.T) {
+	clearTable()
+
+	var jsonStr = []byte(`{"name":"Laptop", "price": 799.99, "category": "Electronics"}`)
+	req, _ := http.NewRequest("POST", "/product", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeRequest(req)
+	checkResponseCode(t, http.StatusCreated, response.Code)
+
+	var m map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if m["category"] != "Electronics" {
+		t.Errorf("Expected product category to be 'Electronics'. Got '%v'", m["category"])
+	}
+}
+
 func TestGetProduct(t *testing.T) {
 	clearTable()
 	addProducts(1)
@@ -134,6 +152,69 @@ func addProducts(count int) {
 
 	for i := 0; i < count; i++ {
 		a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
+	}
+}
+
+func TestSearchProductByName(t *testing.T) {
+	clearTable()
+	addProducts(3)
+
+	req, _ := http.NewRequest("GET", "/products?name=Product 1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) == 0 {
+		t.Errorf("Expected to find at least one product, but found none")
+	} else if products[0]["name"] != "Product 1" {
+		t.Errorf("Expected product name to be 'Product 1'. Got '%v'", products[0]["name"])
+	}
+}
+
+func TestSortProductsByPriceAsc(t *testing.T) {
+	clearTable()
+	addProducts(3) // Adds products with prices 10, 20, 30
+
+	req, _ := http.NewRequest("GET", "/products?sort=asc", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) < 2 {
+		t.Errorf("Expected at least two products for sorting test")
+	}
+
+	if products[0]["price"].(float64) > products[1]["price"].(float64) {
+		t.Errorf("Expected prices to be sorted in ascending order. Got %v before %v",
+			products[0]["price"], products[1]["price"])
+	}
+}
+
+func TestSortProductsByPriceDesc(t *testing.T) {
+	clearTable()
+	addProducts(3) // Adds products with prices 10, 20, 30
+
+	req, _ := http.NewRequest("GET", "/products?sort=desc", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var products []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &products)
+
+	if len(products) < 2 {
+		t.Errorf("Expected at least two products for sorting test")
+	}
+
+	if products[0]["price"].(float64) < products[1]["price"].(float64) {
+		t.Errorf("Expected prices to be sorted in descending order. Got %v before %v",
+			products[0]["price"], products[1]["price"])
 	}
 }
 
