@@ -10,9 +10,9 @@ on:
     branches: [ "main" ]
 
 env:
-  APP_DB_USERNAME: postgres
-  APP_DB_PASSWORD: password
-  APP_DB_NAME: postgres
+  APP_DB_USERNAME: micha
+  APP_DB_PASSWORD: kicker608
+  APP_DB_NAME: michadb
 
 jobs:
 
