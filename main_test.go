@@ -48,6 +48,7 @@ const tableCreationQuery = `CREATE TABLE IF NOT EXISTS products
     CONSTRAINT products_pkey PRIMARY KEY (id)
 )`
 
+
 func TestEmptyTable(t *testing.T) {
 	clearTable()
 
@@ -152,7 +153,9 @@ func addProducts(count int) {
 	}
 
 	for i := 0; i < count; i++ {
-		a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
+		a.DB.Exec(
+			"INSERT INTO products(name, price, category) VALUES($1, $2, $3)",
+			"Product "+strconv.Itoa(i), (i+1.0)*10, "Category "+strconv.Itoa(i))
 	}
 }
 
