@@ -51,8 +51,8 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=michaelkerscher
+            -Dsonar.projectKey=MichaelKerscher_cicd_sematut
             -Dsonar.sources=.
             -Dsonar.go.coverage.reportPaths=coverage.out
             -Dsonar.verbose=true
