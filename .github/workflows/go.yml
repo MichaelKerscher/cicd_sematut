@@ -38,3 +38,24 @@ jobs:
 
       - name: Build project
         run: go build -v ./...
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v5.0.0
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=.
+            -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.verbose=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
