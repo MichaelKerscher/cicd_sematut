@@ -1,3 +1,6 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
 name: Go
 
 on:
@@ -6,44 +9,25 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  APP_DB_USERNAME: postgres
+  APP_DB_PASSWORD: password
+  APP_DB_NAME: postgres
+
 jobs:
+
   build:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: micha
-          POSTGRES_PASSWORD: kicker608
-          POSTGRES_DB: michadb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
-
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        echo "Waiting for PostgreSQL..."
-        until pg_isready -h localhost -p 5432; do sleep 1; done
+        go-version: '1.24'
 
     - name: Build
       run: go build -v ./...
 
     - name: Test
-      env:
-        APP_DB_USERNAME: micha
-        APP_DB_PASSWORD: kicker608
-        APP_DB_NAME: michadb
       run: go test -v ./...
